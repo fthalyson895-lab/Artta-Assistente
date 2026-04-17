@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTTA — Conta Digital com Proteção</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     FORMSubmit — Envio de resumo por e-mail em site estático
+     CONFIGURAÇÃO:
+     1. Publique este arquivo no GitHub Pages
+     2. No primeiro envio ao vivo, confirme o e-mail recebido pelo FormSubmit
+     3. Depois disso, os próximos cadastros chegam direto na caixa de entrada
+     ============================================================ -->
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0e1623;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* ===== CONTAINER PRINCIPAL ===== */
+  .app-container {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ===== BANNER ===== */
+  .banner {
+    position: relative;
+    background: #132038;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    border-radius: 4px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .banner.hidden { display: none; }
+
+  .spiral-bg {
+    position: absolute;
+    top: 50%; left: 25%;
+    transform: translate(-50%, -50%);
+    width: 420px; height: 420px;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .divider {
+    position: absolute;
+    top: 0; left: 50%;
+    width: 1px; height: 100%;
+    background: rgba(255,255,255,0.07);
+    z-index: 1;
+  }
+
+  .left {
+    position: relative; z-index: 2;
+    padding: 32px 40px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px; font-weight: 400;
+    color: #ffffff; letter-spacing: -1px;
+    line-height: 1; margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-size: 7px; font-weight: 500;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    padding-bottom: 20px; margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400;
+    color: #ffffff; line-height: 1.25; margin-bottom: 12px;
+  }
+
+  .subtext {
+    font-size: 11px; font-weight: 300;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7; margin-bottom: 24px;
+  }
+
+  .btn {
+    display: inline-block; background: #3b8fa6; color: #ffffff;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 10px 20px; border-radius: 3px; text-decoration: none;
+    align-self: flex-start; transition: background 0.2s, transform 0.15s;
+    cursor: pointer; border: none;
+  }
+  .btn:hover { background: #4aafc8; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0px); }
+
+  .right {
+    position: relative; z-index: 2;
+    padding: 32px 36px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+
+  .section-label {
+    font-size: 7px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: rgba(255,255,255,0.25); margin-bottom: 16px;
+  }
+
+  .features {
+    list-style: none; display: flex;
+    flex-direction: column; gap: 10px; margin-bottom: 20px;
+  }
+
+  .features li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.85); line-height: 1.3;
+  }
+
+  .check-box {
+    width: 16px; height: 16px; flex-shrink: 0;
+    background: rgba(59,143,166,0.15);
+    border: 1px solid rgba(59,143,166,0.4);
+    border-radius: 2px; display: flex;
+    align-items: center; justify-content: center;
+  }
+
+  .badges {
+    font-size: 9.5px; color: rgba(255,255,255,0.28);
+    line-height: 1.8; margin-bottom: 16px;
+  }
+
+  .footer {
+    font-size: 7.5px; color: rgba(255,255,255,0.15);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 12px; letter-spacing: 0.3px;
+  }
+
+  /* ===== AGENTE (CHAT) ===== */
+  :root {
+    --gold: #F5D020; --gold-dark: #B8960C;
+    --green-wa: #25D366; --green-dark: #128C7E;
+    --bg-chat: #0B141A; --bubble-out: #005C4B;
+    --bubble-in: #1F2C34; --text-primary: #E9EDEF;
+    --text-secondary: #8696A0; --input-bg: #1F2C34;
+    --error: #ff4d4d; --success: #25D366;
+  }
+
+  .agente-container {
+    width: 100%; max-width: 420px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 0;
+    border-radius: 24px; overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .agente-container.hidden { display: none; }
+
+  .header {
+    background: #1F2C34; padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .back-btn {
+    color: var(--text-secondary); font-size: 20px;
+    cursor: pointer; line-height: 1; transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--gold); }
+
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+    color: #0a0a0a; letter-spacing: 1px; flex-shrink: 0;
+  }
+
+  .header-info { flex: 1; }
+
+  .header-name {
+    font-weight: 600; font-size: 15px;
+    color: var(--text-primary); letter-spacing: 0.3px;
+  }
+
+  .header-status {
+    font-size: 12px; color: var(--green-wa);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green-wa); border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .header-actions {
+    display: flex; gap: 16px;
+    color: var(--text-secondary); font-size: 18px;
+  }
+
+  .chat-bg {
+    background: var(--bg-chat);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(245,208,32,0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(37,211,102,0.02) 0%, transparent 50%);
+    height: 520px; overflow-y: auto;
+    padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    scroll-behavior: smooth;
+  }
+
+  .chat-bg::-webkit-scrollbar { width: 4px; }
+  .chat-bg::-webkit-scrollbar-track { background: transparent; }
+  .chat-bg::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .date-divider { text-align: center; margin: 8px 0; }
+  .date-divider span {
+    background: rgba(17,27,33,0.9); color: var(--text-secondary);
+    font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  }
+
+  .bubble-wrap {
+    display: flex; flex-direction: column; margin-bottom: 2px;
+  }
+  .bubble-wrap.out { align-items: flex-end; }
+  .bubble-wrap.in  { align-items: flex-start; }
+
+  .bubble {
+    max-width: 82%; padding: 8px 12px;
+    border-radius: 8px; font-size: 14px;
+    line-height: 1.45; position: relative;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .bubble.out {
+    background: var(--bubble-out); color: var(--text-primary);
+    border-bottom-right-radius: 2px;
+  }
+  .bubble.in {
+    background: var(--bubble-in); color: var(--text-primary);
+    border-bottom-left-radius: 2px;
+  }
+
+  .bubble-time {
+    font-size: 10px; color: var(--text-secondary);
+    margin-top: 2px; padding: 0 4px;
+  }
+  .bubble-wrap.out .bubble-time { text-align: right; }
+
+  .options-wrap {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-top: 6px; align-items: flex-start;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .opt-btn {
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold); padding: 8px 16px; border-radius: 20px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.2s ease;
+    text-align: left; white-space: nowrap;
+  }
+  .opt-btn:hover { background: var(--gold); color: #0a0a0a; font-weight: 600; }
+  .opt-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+  .typing {
+    background: var(--bubble-in); padding: 10px 14px;
+    border-radius: 8px; border-bottom-left-radius: 2px;
+    display: inline-flex; gap: 4px; align-items: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .typing span {
+    width: 6px; height: 6px; background: var(--text-secondary);
+    border-radius: 50%; animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* ===== INPUT AREA COM VALIDAÇÃO ===== */
+  .input-area {
+    background: #0B141A; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Mensagem de erro de validação */
+  .validation-msg {
+    font-size: 11px; padding: 0 14px;
+    height: 0; overflow: hidden;
+    transition: height 0.2s ease, opacity 0.2s ease;
+    opacity: 0; color: var(--error);
+  }
+  .validation-msg.visible { height: 16px; opacity: 1; }
+  .validation-msg.success-msg { color: var(--success); }
+
+  .input-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .input-wrap {
+    flex: 1; background: var(--input-bg); border-radius: 24px;
+    display: flex; align-items: center; padding: 8px 14px; gap: 8px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.25s ease;
+  }
+
+  /* Estados de validação visual do input */
+  .input-wrap.valid   { border-color: rgba(37,211,102,0.5); }
+  .input-wrap.invalid { border-color: rgba(255,77,77,0.6); }
+
+  .input-emoji { color: var(--text-secondary); font-size: 20px; cursor: pointer; }
+
+  #user-input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; resize: none; height: 20px; line-height: 20px;
+  }
+  #user-input::placeholder { color: var(--text-secondary); }
+  #user-input:disabled { opacity: 0.5; }
+
+  .input-attach { color: var(--text-secondary); font-size: 20px; cursor: pointer; }
+
+  .send-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--green-wa); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--green-dark); transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .send-btn:disabled:hover { transform: none; background: var(--green-wa); }
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+  .free-text-badge {
+    background: rgba(245,208,32,0.1);
+    border: 1px solid rgba(245,208,32,0.3);
+    color: var(--gold); font-size: 11px;
+    padding: 4px 12px; border-radius: 20px;
+    text-align: center; margin: 6px auto; display: table;
+  }
+
+  .reset-bar { background: #0B141A; padding: 6px; text-align: center; }
+  .reset-btn {
+    background: none; border: none; color: var(--text-secondary);
+    font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .reset-btn:hover { color: var(--gold); }
+
+  .lead-card {
+    background: linear-gradient(135deg, rgba(245,208,32,0.15), rgba(184,150,12,0.1));
+    border: 1px solid rgba(245,208,32,0.3);
+    border-radius: 10px; padding: 12px; margin-top: 4px;
+    font-size: 13px; color: var(--text-primary); line-height: 1.7;
+  }
+
+  .lead-card-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+    color: var(--gold); letter-spacing: 1px; margin-bottom: 6px;
+  }
+
+  /* ===== MENSAGEM FINAL DE ENCERRAMENTO ===== */
+  .final-badge {
+    background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(18,140,126,0.08));
+    border: 1px solid rgba(37,211,102,0.3);
+    border-radius: 12px; padding: 14px 16px; margin-top: 8px;
+    text-align: center; animation: fadeIn 0.5s ease;
+  }
+  .final-badge-icon { font-size: 28px; margin-bottom: 6px; }
+  .final-badge-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; color: #25D366; letter-spacing: 1.5px; margin-bottom: 6px;
+  }
+  .final-badge-text { font-size: 13px; color: #E9EDEF; line-height: 1.6; }
+
+  /* ===== TOAST DE STATUS DO E-MAIL ===== */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1F2C34; border: 1px solid rgba(37,211,102,0.4);
+    color: #E9EDEF; font-size: 13px; padding: 10px 20px;
+    border-radius: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transition: transform 0.4s ease; z-index: 9999;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.visible { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: rgba(255,77,77,0.4); }
+
+  /* ===== ADMIN PANEL ===== */
+  .admin-toggle {
+    position: fixed; bottom: 24px; right: 24px;
+    background: linear-gradient(135deg, #B8960C, #F5D020);
+    border: none; border-radius: 50%;
+    width: 52px; height: 52px; font-size: 22px;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(245,208,32,0.4);
+    z-index: 1000; transition: transform 0.2s;
+  }
+  .admin-toggle:hover { transform: scale(1.1); }
+
+  .admin-panel {
+    position: fixed; top: 0; right: 0;
+    width: 380px; height: 100vh;
+    background: #0d1117; border-left: 1px solid #222;
+    z-index: 999; display: none; flex-direction: column;
+    overflow: hidden; box-shadow: -10px 0 40px rgba(0,0,0,0.6);
+  }
+  .admin-panel.open { display: flex; }
+
+  .admin-header {
+    background: #161b22; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #222;
+  }
+  .admin-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); letter-spacing: 2px; }
+  .admin-close { background: none; border: none; color: #8696A0; font-size: 20px; cursor: pointer; }
+
+  .admin-tabs { display: flex; border-bottom: 1px solid #222; }
+  .admin-tab {
+    flex: 1; padding: 10px; background: none; border: none;
+    color: #8696A0; font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .admin-tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(245,208,32,0.05); }
+
+  .admin-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .admin-body::-webkit-scrollbar { width: 4px; }
+  .admin-body::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  .admin-section { display: none; }
+  .admin-section.active { display: block; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 11px; color: #8696A0; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; background: #161b22; border: 1px solid #30363d;
+    border-radius: 8px; padding: 9px 12px; color: #E9EDEF;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+
+  .btn-primary {
+    width: 100%; background: linear-gradient(135deg, #B8960C, #F5D020);
+    border: none; border-radius: 8px; padding: 10px; color: #0a0a0a;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  .parceiro-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .parceiro-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .parceiro-nome { font-size: 14px; font-weight: 600; color: #E9EDEF; }
+  .parceiro-tipo { font-size: 10px; color: #8696A0; margin-top: 2px; }
+  .parceiro-taxa { background: rgba(245,208,32,0.15); border: 1px solid rgba(245,208,32,0.3); color: var(--gold); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .parceiro-stats { display: flex; gap: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #222; }
+  .stat-item { flex: 1; }
+  .stat-label { font-size: 10px; color: #8696A0; }
+  .stat-value { font-size: 13px; font-weight: 600; color: #E9EDEF; }
+  .parceiro-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .btn-sm { flex: 1; background: none; border: 1px solid #30363d; border-radius: 6px; padding: 5px 8px; color: #8696A0; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-sm.danger:hover { border-color: #f85149; color: #f85149; }
+
+  .lead-item { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .lead-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .lead-nome { font-size: 13px; font-weight: 600; color: #E9EDEF; }
+  .lead-time { font-size: 10px; color: #8696A0; }
+  .lead-empresa { font-size: 12px; color: #8696A0; margin-bottom: 6px; }
+  .lead-comissao { display: inline-flex; align-items: center; gap: 4px; background: rgba(37,211,102,0.1); border: 1px solid rgba(37,211,102,0.25); color: #25D366; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .empty-state { text-align: center; padding: 40px 20px; color: #8696A0; font-size: 13px; }
+  .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .banner { grid-template-columns: 1fr; }
+    .divider { display: none; }
+    .spiral-bg { left: 50%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOAST DE NOTIFICAÇÃO ===== -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-text">E-mail enviado com sucesso!</span>
+</div>
+
+<div class="app-container">
+  <!-- ===== BANNER ===== -->
+  <div class="banner" id="banner">
+    <svg class="spiral-bg" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="210" cy="210" r="190" stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="160" stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="130" stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="100" stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="70"  stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="40"  stroke="white" stroke-width="1"/>
+      <circle cx="210" cy="210" r="15"  stroke="white" stroke-width="1"/>
+      <line x1="210" y1="20"  x2="210" y2="400" stroke="white" stroke-width="0.6" opacity="0.5"/>
+      <line x1="20"  y1="210" x2="400" y2="210" stroke="white" stroke-width="0.6" opacity="0.5"/>
+      <line x1="75"  y1="75"  x2="345" y2="345" stroke="white" stroke-width="0.6" opacity="0.5"/>
+      <line x1="345" y1="75"  x2="75"  y2="345" stroke="white" stroke-width="0.6" opacity="0.5"/>
+      <line x1="210" y1="20"  x2="400" y2="210" stroke="white" stroke-width="0.4" opacity="0.3"/>
+      <line x1="400" y1="210" x2="210" y2="400" stroke="white" stroke-width="0.4" opacity="0.3"/>
+      <line x1="210" y1="400" x2="20"  y2="210" stroke="white" stroke-width="0.4" opacity="0.3"/>
+      <line x1="20"  y1="210" x2="210" y2="20"  stroke="white" stroke-width="0.4" opacity="0.3"/>
+    </svg>
+
+    <div class="divider"></div>
+
+    <div class="left">
+      <div class="logo">artta</div>
+      <div class="tagline">Conta Digital com Proteção Garantida</div>
+      <div class="headline">Seu dinheiro protegido,<br>sua liberdade preservada.</div>
+      <div class="subtext">
+        Abrimos sua conta com estrutura de proteção<br>
+        financeira real, para qualquer perfil de cliente.
+      </div>
+      <button class="btn" onclick="mostrarAgente()">
+        Quero conhecer minha conta
+      </button>
+    </div>
+
+    <div class="right">
+      <div>
+        <div class="section-label">O que você encontra na Artta:</div>
+        <ul class="features">
+          <li>
+            <div class="check-box">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#4aafc8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            Conta com proteção sobre seu saldo
+          </li>
+          <li>
+            <div class="check-box">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#4aafc8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            Abertura digital, rápida e sem burocracia
+          </li>
+          <li>
+            <div class="check-box">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#4aafc8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            Atendimento humanizado e discreto
+          </li>
+          <li>
+            <div class="check-box">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#4aafc8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            Aprovação para todo tipo de perfil
+          </li>
+        </ul>
+        <div class="badges">
+          Análise gratuita · 100% digital · Sem julgamentos<br>
+          Solução sob medida · Atendimento imediato
+        </div>
+      </div>
+      <div class="footer">
+        Artta Sociedade de Crédito Direto S.A. · CNPJ 42.259.084/0001-22
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AGENTE (CHAT) ===== -->
+  <div class="agente-container hidden" id="agente">
+    <div class="header">
+      <div class="back-btn" onclick="voltarBanner()">←</div>
+      <div class="avatar">AR</div>
+      <div class="header-info">
+        <div class="header-name">ARTTA Assistente</div>
+        <div class="header-status">
+          <div class="status-dot"></div>
+          online agora
+        </div>
+      </div>
+      <div class="header-actions">
+        <span>📞</span>
+        <span>⋮</span>
+      </div>
+    </div>
+
+    <div class="chat-bg" id="chat">
+      <div class="date-divider"><span>Hoje</span></div>
+    </div>
+
+    <div class="input-area">
+      <!-- Mensagem de validação (aparece acima do input) -->
+      <div class="validation-msg" id="validation-msg"></div>
+      <div class="input-row">
+        <div class="input-wrap" id="input-wrap">
+          <span class="input-emoji">😊</span>
+          <input type="text" id="user-input" placeholder="Digite uma mensagem..." disabled
+                 oninput="onInputChange(this)" />
+          <span class="input-attach">📎</span>
+        </div>
+        <button class="send-btn" id="send-btn" onclick="sendUserMessage()" disabled>
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="reset-bar">
+      <button class="reset-btn" onclick="resetChat()">↺ Reiniciar conversa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Painel Admin -->
+<button class="admin-toggle" onclick="toggleAdmin()" title="Painel de Parceiros">⚙️</button>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-title">⚙️ PAINEL ARTTA</div>
+    <button class="admin-close" onclick="toggleAdmin()">✕</button>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab('parceiros')">👥 Parceiros</button>
+    <button class="admin-tab" onclick="switchTab('leads')">📋 Leads</button>
+    <button class="admin-tab" onclick="switchTab('comissoes')">💰 Comissões</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-section active" id="tab-parceiros">
+      <div class="form-group" style="margin-bottom:16px;">
+        <div style="font-size:12px;color:#8696A0;margin-bottom:12px;">Cadastrar novo parceiro:</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input class="form-input" id="p-nome" placeholder="Ex: Dr. Carlos Silva">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="form-input" id="p-tipo">
+              <option>Advogado</option>
+              <option>Contador</option>
+              <option>Consultor</option>
+              <option>Outro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Taxa de Comissão (%)</label>
+            <input class="form-input" id="p-taxa" type="number" placeholder="Ex: 20" min="0" max="100" step="0.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp</label>
+            <input class="form-input" id="p-whatsapp" placeholder="(11) 99999-9999">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="cadastrarParceiro()">➕ Cadastrar Parceiro</button>
+      </div>
+      <div style="font-size:11px;color:#8696A0;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Parceiros Ativos</div>
+      <div id="lista-parceiros">
+        <div class="empty-state"><div class="icon">👥</div>Nenhum parceiro cadastrado ainda.</div>
+      </div>
+    </div>
+    <div class="admin-section" id="tab-leads">
+      <div style="font-size:11px;color:#8696A0;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Leads Capturados</div>
+      <div id="lista-leads">
+        <div class="empty-state"><div class="icon">📋</div>Nenhum lead capturado ainda.</div>
+      </div>
+    </div>
+    <div class="admin-section" id="tab-comissoes">
+      <div id="resumo-comissoes">
+        <div class="empty-state"><div class="icon">💰</div>Em desenvolvimento</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =============================================================
+   ⚙️  CONFIGURAÇÕES — EDITE APENAS ESTA SEÇÃO
+   ============================================================= */
+
+// --- FormSubmit (envio do resumo para o e-mail) ---
+const DESTINO_LEADS_EMAIL = 'Thalyson@parhub.com.br';
+const FORM_SUBMIT_ENDPOINT = `https://formsubmit.co/ajax/${DESTINO_LEADS_EMAIL}`;
+
+// --- Link de abertura de conta ---
+const LINK_ABERTURA = 'https://ib.sbcash.com.br/register/v2/company?inviteId=YTgyYzI0NTUtYzJmZS00MWJkLWEwOTUtYzc5ZGYzNjQ3ZDZl';
+
+/* =============================================================
+   FIM DAS CONFIGURAÇÕES
+   ============================================================= */
+
+// ===== SYSTEM PROMPT (IA) =====
+const SYSTEM_PROMPT = `Você é o assistente virtual da ARTTA, banco especializado em abertura de contas para empresas com bloqueios judiciais no Brasil.
+
+Seu objetivo é responder dúvidas do cliente de forma empática, clara e direta. O cliente pode ter passado por uma situação muito estressante — trate-o com cuidado.
+
+Regras:
+- Nunca prometa prazos além de 24h úteis para retorno da equipe
+- Nunca dê informações jurídicas ou fiscais detalhadas — diga que a equipe especializada vai orientar
+- Se perguntado sobre custos ou taxas, diga que um consultor vai apresentar as condições personalizadas
+- Use linguagem simples, sem jargão técnico
+- Seja conciso — respostas curtas e diretas, no estilo WhatsApp
+- Sempre termine incentivando o cliente a continuar o processo
+
+Sobre o produto ARTTA:
+- Abre contas para empresas com bloqueios judiciais, fiscais e Bacen Jud
+- Conta com PIX liberado e operação financeira ativa
+- Processo simples: enviar e-mail, CNPJ e razão social
+- Abertura legal e estruturada
+- Atendimento em até 24h úteis
+
+Responda APENAS a dúvida do usuário, em no máximo 3 linhas curtas. Não repita o fluxo de perguntas — isso é feito pelo sistema.`;
+
+// ===== TABELA DE CUSTOS =====
+const TABELA_CUSTOS = [
+  { label: 'Conta Escrow Estruturada', valor: 'R$ 399,00', desc: 'Taxa de abertura única' },
+  { label: 'TED',    valor: 'R$ 4,99',  desc: 'Por transferência' },
+  { label: 'PIX',    valor: 'R$ 3,99',  desc: 'Por transação' },
+  { label: 'Boleto', valor: 'R$ 4,99',  desc: 'Por emissão' },
+  { label: 'Movimentação (entrada)', valor: '1,20%', desc: 'Sobre o que entra na conta' },
+];
+
+// ===== ESTADO GLOBAL =====
+let step = 0;
+let userData = {};
+let conversationHistory = [];
+let chatIniciado = false;
+let collectingField = null;   // qual campo está sendo coletado agora
+let inputValid = true;        // estado de validação do input atual
+
+// ===== FLUXO DE PASSOS =====
+// Cada passo tem: type, text, e opcionalmente: options, freeText, collect, validate, optional, pitOnOption
+const steps = [
+  {
+    type: 'bot',
+    text: 'Olá! 👋 Bem-vindo à *ARTTA*.\n\nSomos especializados em abertura de contas para empresas com bloqueios judiciais. Posso te ajudar?',
+    options: ['✅ Sim, pode perguntar', '👤 Prefiro falar com um consultor']
+  },
+  {
+    type: 'bot',
+    text: 'Ótimo! Para começar, qual é o seu *nome completo*?',
+    freeText: true, collect: 'nomeContato',
+    validate: 'nome',
+    placeholder: 'Seu nome completo...'
+  },
+  {
+    type: 'bot',
+    text: 'Prazer, *{nomeContato}*! 😊\n\nQual é o seu *telefone* com DDD?',
+    freeText: true, collect: 'telefone',
+    validate: 'telefone',
+    placeholder: '(11) 99999-9999'
+  },
+  {
+    type: 'bot',
+    text: 'Perfeito! Agora me conta: sua empresa está com qual tipo de restrição?',
+    options: ['⚖️ Bloqueio judicial', '🏛️ Bloqueio fiscal', '🏦 Bacen Jud', '❓ Não sei ao certo']
+  },
+  {
+    type: 'bot',
+    text: 'Entendido. A empresa ainda está operando normalmente?',
+    options: ['✅ Sim, ainda opera', '⚠️ Está parcialmente parada', '🔴 Está totalmente parada']
+  },
+  {
+    type: 'bot',
+    text: 'Já tentou abrir conta em outro banco após o bloqueio?',
+    options: ['❌ Sim, fui recusado', '🔍 Ainda não tentei', '⚡ Tenho conta com limitações'],
+    pitOnOption: '⚡ Tenho conta com limitações'
+  },
+  {
+    type: 'bot',
+    text: '🎉 Ótima notícia! A ARTTA consegue abrir sua conta com *PIX liberado e operação ativa*.\n\nQual o *e-mail* de contato?',
+    freeText: true, collect: 'email',
+    validate: 'email',
+    placeholder: 'seuemail@empresa.com'
+  },
+  {
+    type: 'collect',
+    text: 'Ótimo! Agora o *CNPJ* da empresa:',
+    freeText: true, collect: 'cnpj',
+    validate: 'cnpj',
+    placeholder: '00.000.000/0000-00'
+  },
+  {
+    type: 'collect',
+    text: 'E a *razão social* da empresa:',
+    freeText: true, collect: 'razao',
+    validate: 'nome',
+    placeholder: 'Razão social completa...'
+  },
+  {
+    type: 'collect',
+    text: '👤 Foi indicado por algum *parceiro*? (advogado, contador ou consultor)\n\nSe não, pode digitar *não* ou *pular*.',
+    freeText: true, collect: 'parceiro',
+    validate: 'none',
+    optional: true,
+    placeholder: 'Nome do parceiro ou "não"'
+  },
+  { type: 'final' }
+];
+
+// ========================================================
+// VALIDAÇÕES
+// ========================================================
+
+/** Remove todos os caracteres não numéricos */
+function somenteNumeros(v) { return v.replace(/\D/g, ''); }
+
+/** Máscara de telefone: (11) 99999-9999 ou (11) 9999-9999 */
+function mascaraTelefone(v) {
+  v = somenteNumeros(v);
+  v = v.slice(0, 11);
+
+  if (v.length === 0) return '';
+  if (v.length < 3) return `(${v}`;
+  if (v.length < 7) return `(${v.slice(0, 2)}) ${v.slice(2)}`;
+  if (v.length < 11) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+  return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+}
+
+/** Máscara de CNPJ: 00.000.000/0000-00 */
+function mascaraCNPJ(v) {
+  v = somenteNumeros(v);
+  return v
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2')
+    .slice(0, 18);
+}
+
+/** Máscara de CPF: 000.000.000-00 */
+function mascaraCPF(v) {
+  v = somenteNumeros(v);
+  return v
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1-$2')
+    .slice(0, 14);
+}
+
+/** Valida dígitos verificadores do CPF */
+function validarCPF(cpf) {
+  cpf = somenteNumeros(cpf);
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  let sum = 0, rest;
+  for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  rest = (sum * 10) % 11;
+  if (rest === 10 || rest === 11) rest = 0;
+  if (rest !== parseInt(cpf.substring(9, 10))) return false;
+  sum = 0;
+  for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i-1, i)) * (12 - i);
+  rest = (sum * 10) % 11;
+  if (rest === 10 || rest === 11) rest = 0;
+  return rest === parseInt(cpf.substring(10, 11));
+}
+
+/** Valida apenas a estrutura do CNPJ: 14 dígitos no formato esperado */
+function validarCNPJ(cnpj) {
+  const numeros = somenteNumeros(cnpj);
+  return numeros.length === 14 && !/^(\d)\1{13}$/.test(numeros);
+}
+
+/** Valida e-mail com regex simples */
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
+/** Valida telefone brasileiro (mínimo 10 dígitos) */
+function validarTelefone(tel) {
+  const n = somenteNumeros(tel);
+  return n.length >= 10 && n.length <= 11;
+}
+
+/** Valida nome (mínimo 2 palavras com 2+ letras cada) */
+function validarNome(nome) {
+  return nome.trim().split(/\s+/).filter(p => p.length >= 2).length >= 1;
+}
+
+/**
+ * Aplica máscara em tempo real conforme o tipo do campo atual.
+ * Retorna { maskedValue, isValid, errorMsg }
+ */
+function processarInput(value, tipo) {
+  let masked = value;
+  let isValid = true;
+  let errorMsg = '';
+
+  switch (tipo) {
+    case 'telefone':
+      masked = mascaraTelefone(value);
+      isValid = validarTelefone(masked);
+      if (!isValid && masked.length > 4) errorMsg = '⚠️ Telefone inválido. Ex: (11) 99999-9999';
+      break;
+
+    case 'cnpj':
+      masked = mascaraCNPJ(value);
+      const cnpjNums = somenteNumeros(masked);
+      if (cnpjNums.length === 14) {
+        isValid = validarCNPJ(masked);
+        errorMsg = isValid ? '' : '❌ CNPJ inválido. Use o formato 00.000.000/0000-00.';
+      } else {
+        isValid = false; // ainda digitando
+      }
+      break;
+
+    case 'email':
+      masked = value;
+      isValid = validarEmail(value);
+      if (!isValid && value.includes('@')) errorMsg = '⚠️ E-mail inválido. Ex: nome@empresa.com';
+      break;
+
+    case 'nome':
+      masked = value;
+      isValid = validarNome(value);
+      if (!isValid && value.length > 3) errorMsg = '⚠️ Digite pelo menos um nome válido.';
+      break;
+
+    case 'none':
+    default:
+      isValid = value.trim().length > 0;
+      break;
+  }
+
+  return { masked, isValid, errorMsg };
+}
+
+// ========================================================
+// EVENTOS DE INPUT (máscara + validação em tempo real)
+// ========================================================
+function onInputChange(input) {
+  if (!collectingField) return; // modo livre — sem validação de campo
+
+  const currentStep = steps.find(s => s.collect === collectingField);
+  if (!currentStep || !currentStep.validate) return;
+
+  const tipo = currentStep.validate;
+  const cursorOriginal = input.selectionStart ?? input.value.length;
+  const digitsBeforeCursor = somenteNumeros(input.value.slice(0, cursorOriginal)).length;
+  const { masked, isValid, errorMsg } = processarInput(input.value, tipo);
+
+  input.value = masked;
+
+  if (tipo === 'telefone' || tipo === 'cnpj' || tipo === 'cpf') {
+    let novoCursor = masked.length;
+    let totalDigitos = 0;
+
+    for (let i = 0; i < masked.length; i++) {
+      if (/\d/.test(masked[i])) totalDigitos++;
+      if (totalDigitos >= digitsBeforeCursor) {
+        novoCursor = i + 1;
+        break;
+      }
+    }
+
+    try { input.setSelectionRange(novoCursor, novoCursor); } catch(e) {}
+  }
+
+  // Feedback visual no wrapper do input
+  const wrap = document.getElementById('input-wrap');
+  const msg  = document.getElementById('validation-msg');
+
+  if (masked.length === 0) {
+    wrap.classList.remove('valid', 'invalid');
+    msg.textContent = '';
+    msg.classList.remove('visible', 'success-msg');
+    inputValid = false;
+    return;
+  }
+
+  if (isValid) {
+    wrap.classList.add('valid');
+    wrap.classList.remove('invalid');
+    msg.textContent = '';
+    msg.classList.remove('visible');
+    inputValid = true;
+  } else {
+    wrap.classList.add('invalid');
+    wrap.classList.remove('valid');
+    if (errorMsg) {
+      msg.textContent = errorMsg;
+      msg.classList.add('visible');
+      msg.classList.remove('success-msg');
+    } else {
+      msg.textContent = '';
+      msg.classList.remove('visible');
+    }
+    inputValid = false;
+  }
+}
+
+/** Limpa feedback visual */
+function clearValidationUI() {
+  const wrap = document.getElementById('input-wrap');
+  const msg  = document.getElementById('validation-msg');
+  wrap.classList.remove('valid', 'invalid');
+  msg.textContent = '';
+  msg.classList.remove('visible', 'success-msg');
+  inputValid = true;
+}
+
+// ========================================================
+// ENVIO DE E-MAIL / RESUMO (FormSubmit)
+// ========================================================
+async function enviarEmailLead(data) {
+  if (window.location.protocol === 'file:') {
+    console.warn('⚠️ O envio de leads só funciona em ambiente web, como GitHub Pages.');
+    showToast('⚠️', 'O envio por e-mail funciona no GitHub Pages, não no arquivo local.', true);
+    return;
+  }
+
+  const dataCadastro = new Date().toLocaleString('pt-BR', {
+    dateStyle: 'full',
+    timeStyle: 'short'
+  });
+
+  const resumo = [
+    `Nome: ${data.nomeContato || '—'}`,
+    `Telefone: ${data.telefone || '—'}`,
+    `E-mail: ${data.email || '—'}`,
+    `CNPJ: ${data.cnpj || '—'}`,
+    `Razão Social: ${data.razao || '—'}`,
+    `Parceiro: ${data.parceiro || 'Sem indicação'}`,
+    `Data: ${dataCadastro}`
+  ].join('\n');
+
+  const payload = {
+    nome: data.nomeContato || '—',
+    telefone: data.telefone || '—',
+    email: data.email || '—',
+    cnpj: data.cnpj || '—',
+    razao_social: data.razao || '—',
+    parceiro: data.parceiro || 'Sem indicação',
+    data_cadastro: dataCadastro,
+    resumo_cadastro: resumo,
+    _subject: `Novo lead ARTTA - ${data.nomeContato || 'Sem nome'}`,
+    _replyto: data.email || DESTINO_LEADS_EMAIL,
+    _template: 'table',
+    _captcha: 'false',
+    _url: window.location.href
+  };
+
+  try {
+    const response = await fetch(FORM_SUBMIT_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json().catch(() => null);
+    if (!response.ok || (result && result.success === 'false')) {
+      throw new Error(result?.message || 'Falha ao enviar o resumo.');
+    }
+
+    showToast('✅', 'Lead enviado por e-mail com sucesso!');
+  } catch (err) {
+    console.error('Erro ao enviar e-mail:', err);
+    showToast('⚠️', 'Erro ao enviar e-mail. Confirme o formulário no FormSubmit.', true);
+  }
+}
+
+/** Exibe um toast de notificação na tela */
+function showToast(icon, text, isError = false) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-text').textContent = text;
+  toast.classList.toggle('error', isError);
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 3500);
+}
+
+// ========================================================
+// TRANSIÇÃO BANNER ↔ AGENTE
+// ========================================================
+function mostrarAgente() {
+  document.getElementById('banner').classList.add('hidden');
+  document.getElementById('agente').classList.remove('hidden');
+  if (!chatIniciado) {
+    setTimeout(() => processStep(), 500);
+    chatIniciado = true;
+  }
+}
+
+function voltarBanner() {
+  document.getElementById('agente').classList.add('hidden');
+  document.getElementById('banner').classList.remove('hidden');
+}
+
+// ========================================================
+// UTILITÁRIOS DO CHAT
+// ========================================================
+function getTime() {
+  return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatText(text) {
+  text = text.replace(/\{(\w+)\}/g, (_, key) => userData[key] || '');
+  return text
+    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+function scrollBottom() {
+  const chat = document.getElementById('chat');
+  setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
+}
+
+function addBubble(text, type, time) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = `bubble-wrap ${type}`;
+  const bubble = document.createElement('div');
+  bubble.className = `bubble ${type}`;
+  bubble.innerHTML = formatText(text);
+  const timeEl = document.createElement('div');
+  timeEl.className = 'bubble-time';
+  timeEl.textContent = time || getTime();
+  wrap.appendChild(bubble);
+  wrap.appendChild(timeEl);
+  chat.appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap in';
+  wrap.id = 'typing-indicator';
+  wrap.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function addOptions(options) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'options-wrap';
+  wrap.id = 'current-options';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectOption(opt, wrap);
+    wrap.appendChild(btn);
+  });
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+function disableOptions(wrap) {
+  wrap.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+}
+
+function enableInput(placeholder) {
+  const inp = document.getElementById('user-input');
+  inp.disabled = false;
+  inp.placeholder = placeholder || 'Digite uma mensagem...';
+  document.getElementById('send-btn').disabled = false;
+  inp.focus();
+  clearValidationUI();
+  inputValid = false; // aguardando digitação
+}
+
+function disableInput() {
+  document.getElementById('user-input').disabled = true;
+  document.getElementById('send-btn').disabled = true;
+  clearValidationUI();
+}
+
+// ========================================================
+// PROCESSAMENTO DE OPÇÕES
+// ========================================================
+function selectOption(text, wrap) {
+  disableOptions(wrap);
+  addBubble(text, 'out');
+
+  // Opção "falar com consultor" — encerra o fluxo
+  if (step === 1 && text.includes('consultor')) {
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      addBubble('Sem problema! 😊 Um dos nossos consultores entrará em contato em breve.', 'in');
+      setTimeout(() => {
+        addBubble('📞 Para agilizar, você também pode nos contatar diretamente.', 'in');
+      }, 800);
+    }, 1000);
+    return;
+  }
+
+  const currentStepData = steps[step - 1];
+  if (currentStepData && currentStepData.pitOnOption && text === currentStepData.pitOnOption) {
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      showPitVenda();
+      setTimeout(() => processStep(), 800);
+    }, 900);
+    return;
+  }
+
+  setTimeout(() => processStep(), 700);
+}
+
+// ========================================================
+// ENVIO DE MENSAGEM DO USUÁRIO
+// ========================================================
+function sendUserMessage() {
+  const input = document.getElementById('user-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  // Se está coletando um campo com validação, bloqueia se inválido
+  if (collectingField) {
+    const currentStep = steps.find(s => s.collect === collectingField);
+    if (currentStep && currentStep.validate && currentStep.validate !== 'none') {
+      const { isValid, errorMsg } = processarInput(text, currentStep.validate);
+      if (!isValid) {
+        // Mostra erro e não avança
+        const msg = document.getElementById('validation-msg');
+        const wrap = document.getElementById('input-wrap');
+        const errText = errorMsg || '⚠️ Dado inválido. Verifique e tente novamente.';
+        msg.textContent = errText;
+        msg.classList.add('visible');
+        msg.classList.remove('success-msg');
+        wrap.classList.add('invalid');
+        wrap.classList.remove('valid');
+        input.focus();
+        return;
+      }
+    }
+  }
+
+  input.value = '';
+  clearValidationUI();
+  addBubble(text, 'out');
+  disableInput();
+
+  if (collectingField) {
+    userData[collectingField] = text;
+    collectingField = null;
+    setTimeout(() => processStep(), 700);
+  } else {
+    handleFreeQuestion(text);
+  }
+}
+
+document.getElementById('user-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendUserMessage();
+});
+
+// ========================================================
+// PROCESSAMENTO DE PASSOS
+// ========================================================
+function processStep() {
+  if (step >= steps.length) return;
+  const current = steps[step];
+  showTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    if (current.type === 'final') { showFinal(); return; }
+    if (step === 0) {
+      addBubble(current.text, 'in');
+      addOptions(current.options);
+      step++;
+      return;
+    }
+    addBubble(current.text, 'in');
+    if (current.options) {
+      addOptions(current.options);
+      step++;
+    } else if (current.freeText) {
+      collectingField = current.collect;
+      step++;
+      enableInput(current.placeholder);
+    }
+  }, current.type === 'final' ? 800 : 1000);
+}
+
+// ========================================================
+// FINALIZAÇÃO DO FLUXO — mostra resumo e encerra
+// ========================================================
+function showFinal() {
+  // 1. Salva no painel admin
+  registrarLeadNoPainel(userData);
+
+  // 2. Envia e-mail automaticamente
+  enviarEmailLead(userData);
+
+  // 3. Mensagem de confirmação
+  addBubble(
+    `✅ Perfeito, *${userData.nomeContato || 'prezado(a)'}*!\n\nSeus dados foram registrados com sucesso.`,
+    'in'
+  );
+
+  setTimeout(() => {
+    const chat = document.getElementById('chat');
+
+    // 4. Card com resumo do cadastro
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap in';
+    const card = document.createElement('div');
+    card.className = 'lead-card';
+    card.innerHTML = `
+      <div class="lead-card-title">📋 RESUMO DO CADASTRO</div>
+      <div>👤 <strong>Nome:</strong> ${userData.nomeContato || '—'}</div>
+      <div>📱 <strong>Telefone:</strong> ${userData.telefone || '—'}</div>
+      <div>📧 <strong>E-mail:</strong> ${userData.email || '—'}</div>
+      <div>🏢 <strong>CNPJ:</strong> ${userData.cnpj || '—'}</div>
+      <div>📄 <strong>Razão Social:</strong> ${userData.razao || '—'}</div>
+      ${userData.parceiro ? `<div>🤝 <strong>Parceiro:</strong> ${userData.parceiro}</div>` : ''}
+    `;
+    const timeEl = document.createElement('div');
+    timeEl.className = 'bubble-time';
+    timeEl.textContent = getTime();
+    wrap.appendChild(card);
+    wrap.appendChild(timeEl);
+    chat.appendChild(wrap);
+    scrollBottom();
+
+    // 5. Badge de encerramento — FLUXO TERMINA AQUI
+    setTimeout(() => {
+      const finalWrap = document.createElement('div');
+      finalWrap.className = 'bubble-wrap in';
+      const finalCard = document.createElement('div');
+      finalCard.className = 'final-badge';
+      finalCard.innerHTML = `
+        <div class="final-badge-icon">🎉</div>
+        <div class="final-badge-title">Cadastro Concluído!</div>
+        <div class="final-badge-text">
+          Em breve nossa equipe entrará em contato.<br>
+          Atendimento em até <strong>24 horas úteis</strong>.
+        </div>
+      `;
+      finalWrap.appendChild(finalCard);
+      chat.appendChild(finalWrap);
+      scrollBottom();
+
+      // Input permanece desabilitado — fluxo encerrado
+      disableInput();
+      document.getElementById('user-input').placeholder = 'Cadastro finalizado ✓';
+
+      step++; // garante que não processa mais passos
+    }, 1000);
+
+  }, 800);
+}
+
+// ========================================================
+// PERGUNTAS LIVRES (fora do fluxo de coleta)
+// ========================================================
+function isCostQuestion(text) {
+  const keywords = ['custo', 'taxa', 'tarifa', 'preço', 'valor', 'mensalidade', 'quanto', 'pagar'];
+  return keywords.some(k => text.toLowerCase().includes(k));
+}
+
+async function handleFreeQuestion(question) {
+  showTyping();
+  conversationHistory.push({ role: 'user', content: question });
+  const isCost = isCostQuestion(question);
+
+  try {
+    const reply = gerarRespostaLocal(question);
+    conversationHistory.push({ role: 'assistant', content: reply });
+    removeTyping();
+    addBubble(reply, 'in');
+    if (isCost) setTimeout(() => showTabelaCustos(), 500);
+
+    setTimeout(() => {
+      const chat = document.getElementById('chat');
+      const badge = document.createElement('div');
+      badge.className = 'free-text-badge';
+      badge.textContent = 'Mais dúvidas? Pode perguntar ou continue 👇';
+      chat.appendChild(badge);
+      const opts = document.createElement('div');
+      opts.className = 'options-wrap';
+      const continueBtn = document.createElement('button');
+      continueBtn.className = 'opt-btn';
+      continueBtn.textContent = '✅ Continuar o cadastro';
+      continueBtn.onclick = () => {
+        opts.remove(); badge.remove();
+        disableInput();
+        setTimeout(() => processStep(), 400);
+      };
+      opts.appendChild(continueBtn);
+      chat.appendChild(opts);
+      scrollBottom();
+    }, isCost ? 1200 : 400);
+  } catch (err) {
+    removeTyping();
+    addBubble('Desculpe, tive um problema técnico.', 'in');
+    enableInput();
+  }
+}
+
+function gerarRespostaLocal(question) {
+  const texto = question.toLowerCase();
+
+  if (/(pix|transfer|ted|boleto|movimenta)/.test(texto)) {
+    return 'Sim, a conta pode operar com PIX, TED e boleto. Se quiser, seguimos com o cadastro para análise.';
+  }
+
+  if (/(prazo|quando|retorno|tempo|demora|24h)/.test(texto)) {
+    return 'Após o cadastro, nossa equipe faz o retorno em até 24 horas úteis. Se quiser, podemos concluir seus dados agora.';
+  }
+
+  if (/(custo|taxa|tarifa|preço|valor|mensalidade|quanto)/.test(texto)) {
+    return 'Os custos são apresentados de forma personalizada por um consultor. Posso te mostrar a tabela base e seguir com o cadastro.';
+  }
+
+  if (/(bloqueio|judicial|fiscal|bacen|restri)/.test(texto)) {
+    return 'A ARTTA atua justamente em cenários de bloqueio judicial, fiscal e Bacen Jud. Vamos seguir com seus dados para a equipe analisar o caso.';
+  }
+
+  if (/(documento|documentação|documentos|cnpj|raz[aã]o social|email)/.test(texto)) {
+    return 'Para iniciar, normalmente precisamos do e-mail, CNPJ e razão social da empresa. Posso continuar seu cadastro por aqui.';
+  }
+
+  if (/(consultor|atendente|humano|pessoa)/.test(texto)) {
+    return 'Claro. Assim que o cadastro for concluído, um consultor pode assumir o atendimento com o seu caso em mãos.';
+  }
+
+  if (/(seguro|seguran[aç]a|confi[aá]vel|legal)/.test(texto)) {
+    return 'Sim, a abertura é feita de forma legal e estruturada. Nosso time especializado orienta cada caso com segurança.';
+  }
+
+  return 'Posso te ajudar com bloqueio, operação da conta, prazo de retorno e documentos iniciais. Se preferir, continue o cadastro que nossa equipe assume daqui.';
+}
+
+// ========================================================
+// CARDS ESPECIAIS
+// ========================================================
+function showPitVenda() {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap in';
+  const card = document.createElement('div');
+  card.className = 'lead-card';
+  card.style.background = 'linear-gradient(135deg, rgba(37,211,102,0.12), rgba(18,140,126,0.08))';
+  card.style.borderColor = 'rgba(37,211,102,0.35)';
+  card.innerHTML = `
+    <div class="lead-card-title" style="color:#25D366;">⚡ O DIFERENCIAL ARTTA</div>
+    <div style="font-size:13px;color:#E9EDEF;line-height:1.7;margin-bottom:12px;">Sabemos que contas com limitações travam sua empresa.<br>Na <strong>ARTTA</strong>, é diferente:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;"><div style="width:28px;height:28px;border-radius:8px;background:rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;">🔓</div><div style="font-size:13px;color:#E9EDEF;"><strong>Você movimenta</strong> — sem depender de ninguém</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><div style="width:28px;height:28px;border-radius:8px;background:rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;">🛡️</div><div style="font-size:13px;color:#E9EDEF;"><strong>Segurança</strong> — estrutura bancária sólida</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><div style="width:28px;height:28px;border-radius:8px;background:rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;">⚡</div><div style="font-size:13px;color:#E9EDEF;"><strong>Praticidade</strong> — PIX, TED e boleto</div></div>
+    </div>
+  `;
+  const timeEl = document.createElement('div');
+  timeEl.className = 'bubble-time';
+  timeEl.textContent = getTime();
+  wrap.appendChild(card);
+  wrap.appendChild(timeEl);
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+function showTabelaCustos() {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap in';
+  const card = document.createElement('div');
+  card.className = 'lead-card';
+  card.innerHTML = `
+    <div class="lead-card-title">💰 TABELA DE CUSTOS</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${TABELA_CUSTOS.map(item => `
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(245,208,32,0.1);padding-bottom:6px;">
+          <div>
+            <div style="font-size:13px;color:#E9EDEF;">${item.label}</div>
+            <div style="font-size:11px;color:#8696A0;">${item.desc}</div>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:#F5D020;">${item.valor}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  const timeEl = document.createElement('div');
+  timeEl.className = 'bubble-time';
+  timeEl.textContent = getTime();
+  wrap.appendChild(card);
+  wrap.appendChild(timeEl);
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+// ========================================================
+// RESET DO CHAT
+// ========================================================
+function resetChat() {
+  step = 0;
+  userData = {};
+  conversationHistory = [];
+  collectingField = null;
+  inputValid = true;
+  document.getElementById('chat').innerHTML = '<div class="date-divider"><span>Hoje</span></div>';
+  document.getElementById('user-input').value = '';
+  document.getElementById('user-input').placeholder = 'Digite uma mensagem...';
+  clearValidationUI();
+  disableInput();
+  setTimeout(() => processStep(), 500);
+}
+
+// ========================================================
+// PAINEL ADMIN
+// ========================================================
+let parceiros = JSON.parse(localStorage.getItem('artta_parceiros') || '[]');
+let leads     = JSON.parse(localStorage.getItem('artta_leads')     || '[]');
+
+function salvarDados() {
+  localStorage.setItem('artta_parceiros', JSON.stringify(parceiros));
+  localStorage.setItem('artta_leads',     JSON.stringify(leads));
+}
+
+function toggleAdmin() {
+  const panel = document.getElementById('adminPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) { renderParceiros(); renderLeads(); renderComissoes(); }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach((t, i) =>
+    t.classList.toggle('active', ['parceiros','leads','comissoes'][i] === tab)
+  );
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function cadastrarParceiro() {
+  const nome     = document.getElementById('p-nome').value.trim();
+  const tipo     = document.getElementById('p-tipo').value;
+  const taxa     = parseFloat(document.getElementById('p-taxa').value);
+  const whatsapp = document.getElementById('p-whatsapp').value.trim();
+  if (!nome || isNaN(taxa)) { alert('Preencha nome e taxa.'); return; }
+  parceiros.push({ id: Date.now(), nome, tipo, taxa, whatsapp });
+  salvarDados();
+  document.getElementById('p-nome').value    = '';
+  document.getElementById('p-taxa').value    = '';
+  document.getElementById('p-whatsapp').value = '';
+  renderParceiros();
+}
+
+function removerParceiro(id) {
+  if (!confirm('Remover?')) return;
+  parceiros = parceiros.filter(p => p.id !== id);
+  salvarDados();
+  renderParceiros();
+}
+
+function renderParceiros() {
+  const el = document.getElementById('lista-parceiros');
+  if (!parceiros.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">👥</div>Nenhum parceiro</div>';
+    return;
+  }
+  el.innerHTML = parceiros.map(p => {
+    const leadsCount = leads.filter(l => l.parceiro && l.parceiro.toLowerCase() === p.nome.toLowerCase()).length;
+    return `<div class="parceiro-card">
+      <div class="parceiro-card-top">
+        <div><div class="parceiro-nome">${p.nome}</div><div class="parceiro-tipo">${p.tipo}</div></div>
+        <div class="parceiro-taxa">${p.taxa}%</div>
+      </div>
+      <div class="parceiro-stats">
+        <div class="stat-item"><div class="stat-label">Leads</div><div class="stat-value">${leadsCount}</div></div>
+      </div>
+      <div class="parceiro-actions">
+        <button class="btn-sm danger" onclick="removerParceiro(${p.id})">🗑️ Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderLeads() {
+  const el = document.getElementById('lista-leads');
+  if (!leads.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div>Nenhum lead</div>';
+    return;
+  }
+  el.innerHTML = [...leads].reverse().map(l =>
+    `<div class="lead-item">
+      <div class="lead-item-top">
+        <div class="lead-nome">👤 ${l.nome || '—'}</div>
+        <div class="lead-time">${l.hora || '—'}</div>
+      </div>
+      <div class="lead-empresa">🏢 ${l.razao || '—'} • ${l.cnpj || '—'}</div>
+      <div style="font-size:12px;color:#8696A0;">📱 ${l.telefone || '—'} • 📧 ${l.email || '—'}</div>
+      ${l.parceiro ? `<div style="font-size:12px;color:#8696A0;">🤝 Parceiro: ${l.parceiro}</div>` : ''}
+    </div>`
+  ).join('');
+}
+
+function renderComissoes() {
+  document.getElementById('resumo-comissoes').innerHTML =
+    '<div class="empty-state"><div class="icon">💰</div>Em desenvolvimento</div>';
+}
+
+function registrarLeadNoPainel(data) {
+  const lead = {
+    id:       Date.now(),
+    nome:     data.nomeContato,
+    telefone: data.telefone,
+    email:    data.email,
+    cnpj:     data.cnpj,
+    razao:    data.razao,
+    parceiro: data.parceiro || null,
+    hora:     new Date().toLocaleString('pt-BR')
+  };
+  leads.push(lead);
+  salvarDados();
+}
+</script>
+</body>
+</html>
