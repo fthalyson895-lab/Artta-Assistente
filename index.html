@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARTTA — Conta Digital com Proteção</title>
+<title>Conta Digital com Proteção</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&family=Bebas+Neue&display=swap" rel="stylesheet">
 
 <!-- ============================================================
@@ -540,7 +540,7 @@
     <div class="divider"></div>
 
     <div class="left">
-      <div class="logo">artta</div>
+      <div class="logo">Conta Escrow/div>
       <div class="tagline">Conta Digital com Proteção Garantida</div>
       <div class="headline">Seu dinheiro protegido,<br>sua liberdade preservada.</div>
       <div class="subtext">
@@ -554,7 +554,7 @@
 
     <div class="right">
       <div>
-        <div class="section-label">O que você encontra na Artta:</div>
+        <div class="section-label">O que você encontra na conta:</div>
         <ul class="features">
           <li>
             <div class="check-box">
@@ -594,9 +594,6 @@
           Solução sob medida · Atendimento imediato
         </div>
       </div>
-      <div class="footer">
-        Artta Sociedade de Crédito Direto S.A. · CNPJ 42.259.084/0001-22
-      </div>
     </div>
   </div>
 
@@ -606,7 +603,7 @@
       <div class="back-btn" onclick="voltarBanner()">←</div>
       <div class="avatar">AR</div>
       <div class="header-info">
-        <div class="header-name">ARTTA Assistente</div>
+        <div class="header-name">Assistente Virtual</div>
         <div class="header-status">
           <div class="status-dot"></div>
           online agora
@@ -649,7 +646,7 @@
 
 <div class="admin-panel" id="adminPanel">
   <div class="admin-header">
-    <div class="admin-title">⚙️ PAINEL ARTTA</div>
+    <div class="admin-title">⚙️ PAINEL </div>
     <button class="admin-close" onclick="toggleAdmin()">✕</button>
   </div>
   <div class="admin-tabs">
@@ -724,7 +721,7 @@ const LINK_ABERTURA = 'https://ib.sbcash.com.br/register/v2/company?inviteId=YTg
    ============================================================= */
 
 // ===== SYSTEM PROMPT (IA) =====
-const SYSTEM_PROMPT = `Você é o assistente virtual da ARTTA, banco especializado em abertura de contas para empresas com bloqueios judiciais no Brasil.
+const SYSTEM_PROMPT = `Você é o assistente virtual da Parhub, banco especializado em abertura de contas para empresas com bloqueios judiciais no Brasil.
 
 Seu objetivo é responder dúvidas do cliente de forma empática, clara e direta. O cliente pode ter passado por uma situação muito estressante — trate-o com cuidado.
 
@@ -736,7 +733,7 @@ Regras:
 - Seja conciso — respostas curtas e diretas, no estilo WhatsApp
 - Sempre termine incentivando o cliente a continuar o processo
 
-Sobre o produto ARTTA:
+Sobre o produto da conta:
 - Abre contas para empresas com bloqueios judiciais, fiscais e Bacen Jud
 - Conta com PIX liberado e operação financeira ativa
 - Processo simples: enviar e-mail, CNPJ e razão social
@@ -767,7 +764,7 @@ let inputValid = true;        // estado de validação do input atual
 const steps = [
   {
     type: 'bot',
-    text: 'Olá! 👋 Bem-vindo à *ARTTA*.\n\nSomos especializados em abertura de contas para empresas com bloqueios judiciais. Posso te ajudar?',
+    text: 'Olá! 👋 Bem-vindo à *Central de atendimento*.\n\nSomos especializados em abertura de contas para empresas com bloqueios judiciais. Posso te ajudar?',
     options: ['✅ Sim, pode perguntar', '👤 Prefiro falar com um consultor']
   },
   {
@@ -802,7 +799,7 @@ const steps = [
   },
   {
     type: 'bot',
-    text: '🎉 Ótima notícia! A ARTTA consegue abrir sua conta com *PIX liberado e operação ativa*.\n\nQual o *e-mail* de contato?',
+    text: '🎉 Ótima notícia! Para prosseguirmos com a abertura da sua conta que possui *PIX liberado e operação ativa*.\n\nQual o *e-mail* de contato?',
     freeText: true, collect: 'email',
     validate: 'email',
     placeholder: 'seuemail@empresa.com'
@@ -1451,7 +1448,7 @@ function gerarRespostaLocal(question) {
   }
 
   if (/(bloqueio|judicial|fiscal|bacen|restri)/.test(texto)) {
-    return 'A ARTTA atua justamente em cenários de bloqueio judicial, fiscal e Bacen Jud. Vamos seguir com seus dados para a equipe analisar o caso.';
+    return 'A Conta escrow atua justamente em cenários de bloqueio judicial, fiscal e Bacen Jud. Vamos seguir com seus dados para a equipe analisar o caso.';
   }
 
   if (/(documento|documentação|documentos|cnpj|raz[aã]o social|email)/.test(texto)) {
@@ -1481,8 +1478,8 @@ function showPitVenda() {
   card.style.background = 'linear-gradient(135deg, rgba(37,211,102,0.12), rgba(18,140,126,0.08))';
   card.style.borderColor = 'rgba(37,211,102,0.35)';
   card.innerHTML = `
-    <div class="lead-card-title" style="color:#25D366;">⚡ O DIFERENCIAL ARTTA</div>
-    <div style="font-size:13px;color:#E9EDEF;line-height:1.7;margin-bottom:12px;">Sabemos que contas com limitações travam sua empresa.<br>Na <strong>ARTTA</strong>, é diferente:</div>
+    <div class="lead-card-title" style="color:#25D366;">⚡ O DIFERENCIAL dessa conta</div>
+    <div style="font-size:13px;color:#E9EDEF;line-height:1.7;margin-bottom:12px;">Sabemos que contas com limitações afetam sua empresa.<br><strong>Aqui é diferente</strong></div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div style="display:flex;align-items:center;gap:10px;"><div style="width:28px;height:28px;border-radius:8px;background:rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;">🔓</div><div style="font-size:13px;color:#E9EDEF;"><strong>Você movimenta</strong> — sem depender de ninguém</div></div>
       <div style="display:flex;align-items:center;gap:10px;"><div style="width:28px;height:28px;border-radius:8px;background:rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;">🛡️</div><div style="font-size:13px;color:#E9EDEF;"><strong>Segurança</strong> — estrutura bancária sólida</div></div>
